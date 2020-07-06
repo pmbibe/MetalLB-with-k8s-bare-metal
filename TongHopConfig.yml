@@ -207,28 +207,25 @@ metadata:
 spec:
   tls:
   - hosts:
-      - test.nhac.vn
-      - beta.nhac.vn      
+      - xxx.xxx.vn
+      - yyy.yyy.vn      
     secretName: nginx-certs-keys
   rules:
-  - host: test.nhac.vn
+  - host: xxx.xxx.vn
     http:
       paths:
       - backend:
           serviceName: http-https-svc
           servicePort: 80
-  - host: beta.nhac.vn
+  - host: yyy.yyy.vn
     http:
       paths:
       - backend:
           serviceName: http-https-svc-beta
           servicePort: 80
-  - host: test-api.nhac.vn
+  - host: xxx-api.xxx.vn
     http:
       paths:
       - backend:
           serviceName: http-https-svc-api
           servicePort: 80
-# kubectl create secret tls selfsigned-cert-tls --cert=example.crt --key=example.key -n http-http
-# kubectl create secret tls selfsigned-cert-tls --cert=example.crt --key=example.key -n http-http
-# kubectl create secret tls selfsigned-cert-tls --cert=example.crt --key=example.key -n http-http
