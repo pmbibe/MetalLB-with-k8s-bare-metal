@@ -13,3 +13,5 @@ $ ./get_helm.sh
 $ helm repo add nginx-stable https://helm.nginx.com/stable  
 $ helm repo update  
 $ helm install my-release nginx-stable/nginx-ingress  
+# Create secret  
+kubectl create secret tls nginx-certs-keys --key xxx.vn.key --cert xxx.vn.crt -n http-https
