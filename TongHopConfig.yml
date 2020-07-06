@@ -1,0 +1,234 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: http-https
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-https--deploy
+  namespace: http-https
+spec:  
+  selector:
+    matchLabels:
+      web-app: http-https
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        web-app: http-https
+    spec:
+      volumes:
+        - name: srv
+          hostPath:
+            path: /srv
+        - name: log
+          hostPath:
+            path: /var/log/nginx
+        - name: nginx
+          hostPath:
+            path: /etc/nginx
+      containers:
+      - name: php
+        image: babibe2211/php-5.6:latest
+        volumeMounts:
+          - name: srv
+            mountPath: /srv
+        ports:
+          - containerPort: 9000
+      - name: nginx
+        image: nginx:latest
+        ports: 
+          - containerPort: 80
+        volumeMounts:
+          - name: srv
+            mountPath: /srv
+          - name: log
+            mountPath: /var/log/nginx
+          - name: nginx
+            mountPath: /etc/nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-https-svc
+  namespace: http-https
+spec:
+  selector:
+    web-app: http-https
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: http-https
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-https--deploy-api
+  namespace: http-https
+spec:  
+  selector:
+    matchLabels:
+      web-app: http-https-api
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        web-app: http-https-api
+    spec:
+      volumes:
+        - name: srv
+          hostPath:
+            path: /srv
+        - name: log
+          hostPath:
+            path: /var/log/nginx
+        - name: nginx
+          hostPath:
+            path: /etc/nginx
+      containers:
+      - name: php
+        image: babibe2211/php-5.6:latest
+        volumeMounts:
+          - name: srv
+            mountPath: /srv
+        ports:
+          - containerPort: 9000
+      - name: nginx
+        image: nginx:latest
+        ports: 
+          - containerPort: 80
+        volumeMounts:
+          - name: srv
+            mountPath: /srv
+          - name: log
+            mountPath: /var/log/nginx
+          - name: nginx
+            mountPath: /etc/nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-https-svc-api
+  namespace: http-https
+spec:
+  selector:
+    web-app: http-https-api
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: http-https
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-https--deploy-beta
+  namespace: http-https
+spec:  
+  selector:
+    matchLabels:
+      web-app: http-https-beta
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        web-app: http-https-beta
+    spec:
+      volumes:
+        - name: srv
+          hostPath:
+            path: /srv
+        - name: log
+          hostPath:
+            path: /var/log/nginx
+        - name: nginx
+          hostPath:
+            path: /etc/nginx
+      containers:
+      - name: php
+        image: babibe2211/php-5.6:latest
+        volumeMounts:
+          - name: srv
+            mountPath: /srv
+        ports:
+          - containerPort: 9000
+      - name: nginx
+        image: nginx:latest
+        ports: 
+          - containerPort: 80
+        volumeMounts:
+          - name: srv
+            mountPath: /srv
+          - name: log
+            mountPath: /var/log/nginx
+          - name: nginx
+            mountPath: /etc/nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-https-svc-beta
+  namespace: http-https
+spec:
+  selector:
+    web-app: http-https-beta
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: name-virtual-host-ingress
+  namespace: http-https
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+    ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+      - test.nhac.vn
+      - beta.nhac.vn      
+    secretName: nginx-certs-keys
+  rules:
+  - host: test.nhac.vn
+    http:
+      paths:
+      - backend:
+          serviceName: http-https-svc
+          servicePort: 80
+  - host: beta.nhac.vn
+    http:
+      paths:
+      - backend:
+          serviceName: http-https-svc-beta
+          servicePort: 80
+  - host: test-api.nhac.vn
+    http:
+      paths:
+      - backend:
+          serviceName: http-https-svc-api
+          servicePort: 80
+# kubectl create secret tls selfsigned-cert-tls --cert=example.crt --key=example.key -n http-http
+# kubectl create secret tls selfsigned-cert-tls --cert=example.crt --key=example.key -n http-http
+# kubectl create secret tls selfsigned-cert-tls --cert=example.crt --key=example.key -n http-http
